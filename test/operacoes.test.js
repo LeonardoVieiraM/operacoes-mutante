@@ -10,29 +10,79 @@ const {
   isMenorQue, isEqual, medianaArray, dobro, triplo, metade
 } = require('../src/operacoes');
 
-describe('Suíte de Testes Fraca para 50 Operações Aritméticas', () => {
+ describe('Suíte de Testes para 50 Operações Aritméticas', () => {
   // === Testes para o Bloco 1 (1-10) ===
   test('1. deve somar dois números positivos', () => { expect(soma(2, 3)).toBe(5); });
   test('2. deve subtrair dois números positivos', () => { expect(subtracao(5, 2)).toBe(3); });
   test('3. deve multiplicar dois números positivos', () => { expect(multiplicacao(3, 4)).toBe(12); });
   test('4. deve dividir e lançar erro para divisão por zero', () => {
     expect(divisao(10, 2)).toBe(5);
-    expect(() => divisao(5, 0)).toThrow();
+     // Testa a mensagem de erro para matar o mutante de StringLiteral
+    expect(() => divisao(5, 0)).toThrow('Divisão por zero não é permitida.');
   });
   test('5. deve calcular a potência com expoente positivo', () => { expect(potencia(2, 3)).toBe(8); });
   test('6. deve calcular a raiz quadrada de um quadrado perfeito', () => { expect(raizQuadrada(16)).toBe(4); });
+  test('6.1 deve lançar erro ao calcular raiz quadrada de número negativo', () => {
+    // Mata os mutantes de condição e cobre o StringLiteral
+    expect(() => raizQuadrada(-1)).toThrow(
+      'Não é possível calcular a raiz quadrada de um número negativo.',
+    );
+  });
+  test('6.2 deve calcular a raiz quadrada de zero', () => {
+    // Mata mutante de igualdade (n <= 0)
+    expect(raizQuadrada(0)).toBe(0);
+  });
   test('7. deve retornar o resto da divisão', () => { expect(restoDivisao(10, 3)).toBe(1); });
   test('8. deve calcular o fatorial de um número maior que 1', () => { expect(fatorial(4)).toBe(24); });
+  test('8.1 deve calcular o fatorial de 0', () => {
+    // Mata mutantes de condição e lógicos (n === 0 || n === 1)
+    expect(fatorial(0)).toBe(1);
+  });
+  test('8.2 deve calcular o fatorial de 1', () => {
+    // Mata mutantes lógicos (n === 0 && n === 1)
+    expect(fatorial(1)).toBe(1);
+  });
+  test('8.3 deve lançar erro ao calcular fatorial de número negativo', () => {
+    // Mata os mutantes de condição e cobre o StringLiteral
+    expect(() => fatorial(-1)).toThrow(
+      'Fatorial não é definido para números negativos.',
+    );
+  });
+
   test('9. deve calcular a média de um array com múltiplos elementos', () => { expect(mediaArray([10, 20, 30])).toBe(20); });
+  test('9.1 deve retornar 0 para a média de um array vazio', () => {
+    // Mata o mutante de condição (mediaArray)
+    expect(mediaArray([])).toBe(0);
+  });
   test('10. deve somar um array com múltiplos elementos', () => { expect(somaArray([1, 2, 3])).toBe(6); });
 
   // === Testes para o Bloco 2 (11-20) ===
   test('11. deve encontrar o valor máximo em um array', () => { expect(maximoArray([1, 50, 10])).toBe(50); });
+  test('11.1 deve lançar erro ao buscar máximo em array vazio', () => {
+    // Mata os mutantes de condição e cobre o StringLiteral
+    expect(() => maximoArray([])).toThrow(
+      'Array vazio не possui valor máximo.',
+    );
+  });
   test('12. deve encontrar o valor mínimo em um array', () => { expect(minimoArray([10, 2, 100])).toBe(2); });
+  test('12.1 deve lançar erro ao buscar mínimo em array vazio', () => {
+    // Mata os mutantes de condição e cobre o StringLiteral
+    expect(() => minimoArray([])).toThrow(
+      'Array vazio не possui valor mínimo.',
+    );
+  });
   test('13. deve retornar o valor absoluto de um número negativo', () => { expect(valorAbsoluto(-5)).toBe(5); });
   test('14. deve arredondar um número para cima', () => { expect(arredondar(9.8)).toBe(10); });
   test('15. deve retornar true para um número par', () => { expect(isPar(100)).toBe(true); });
+  test('15.1 deve retornar false para um número ímpar', () => {
+    // Mata o mutante de condição que sempre retorna true
+    expect(isPar(7)).toBe(false);
+  });
   test('16. deve retornar true para um número ímpar', () => { expect(isImpar(7)).toBe(true); });
+  test('16.1 deve retornar false para um número par', () => {
+    // Mata o mutante de condição que sempre retorna true
+    expect(isImpar(100)).toBe(false);
+  });
   test('17. deve calcular uma porcentagem simples', () => { expect(calcularPorcentagem(50, 200)).toBe(100); });
   test('18. deve aumentar um valor em uma porcentagem', () => { expect(aumentarPorcentagem(100, 10)).toBeCloseTo(110); });
   test('19. deve diminuir um valor em uma porcentagem', () => { expect(diminuirPorcentagem(100, 10)).toBeCloseTo(90); });
@@ -53,23 +103,95 @@ describe('Suíte de Testes Fraca para 50 Operações Aritméticas', () => {
   // === Testes para o Bloco 4 (31-40) ===
   test('31. deve calcular o MDC de dois números', () => { expect(mdc(10, 5)).toBe(5); });
   test('32. deve calcular o MMC de dois números', () => { expect(mmc(10, 5)).toBe(10); });
-  test('33. deve verificar que um número é primo', () => { expect(isPrimo(7)).toBe(true); });
+  test('33. deve verificar que 7 é primo', () => { expect(isPrimo(7)).toBe(true); });
+  test('33.1 deve verificar que 1 não é primo', () => {
+    // Mata mutante de condição 'n <= 1' e cobre a mutação de boolean literal
+    expect(isPrimo(1)).toBe(false);
+  });
+  test('33.2 deve verificar que um número não primo (9) retorna false', () => {
+    // Mata mutantes de condição do loop (i < n) e operador (i++ -> i--)
+    expect(isPrimo(9)).toBe(false);
+  });
+  test('33.3 deve verificar que o número 2 é primo', () => {
+    // Mata mutante de igualdade (i < n -> i <= n) para o caso específico de 2
+    expect(isPrimo(2)).toBe(true);
+  });
   test('34. deve calcular o 10º termo de Fibonacci', () => { expect(fibonacci(10)).toBe(55); });
   test('35. deve calcular o produto de um array', () => { expect(produtoArray([2, 3, 4])).toBe(24); });
+  test('35.1 deve retornar 1 para o produto de um array vazio', () => {
+    // Mata o mutante de condição (produtoArray)
+    expect(produtoArray([])).toBe(1);
+  });
   test('36. deve manter um valor dentro de um intervalo (clamp)', () => { expect(clamp(5, 0, 10)).toBe(5); });
+  test('36.1 clamp deve retornar min quando valor for menor', () => {
+    // Mata mutante de condição (valor < min -> false)
+    expect(clamp(-1, 0, 10)).toBe(0);
+  });
+  test('36.2 clamp deve retornar max quando valor for maior', () => {
+    // Mata mutante de condição (valor > max -> false)
+    expect(clamp(11, 0, 10)).toBe(10);
+  });
   test('37. deve verificar se um número é divisível por outro', () => { expect(isDivisivel(10, 2)).toBe(true); });
+  test('37.1 deve verificar que um número NÃO é divisível por outro', () => {
+    // Mata mutante de condição que sempre retorna true
+    expect(isDivisivel(10, 3)).toBe(false);
+  });
   test('38. deve converter Celsius para Fahrenheit', () => { expect(celsiusParaFahrenheit(0)).toBe(32); });
+  test('38.1 deve converter 100 Celsius para Fahrenheit', () => {
+    // Mata mutantes aritméticos que não se manifestam com valor 0
+    expect(celsiusParaFahrenheit(100)).toBe(212);
+  });
   test('39. deve converter Fahrenheit para Celsius', () => { expect(fahrenheitParaCelsius(32)).toBe(0); });
+  test('39.1 deve converter 212 Fahrenheit para Celsius', () => {
+    // Mata mutantes aritméticos
+    expect(fahrenheitParaCelsius(212)).toBe(100);
+  });
   test('40. deve calcular o inverso de um número', () => { expect(inverso(4)).toBe(0.25); });
+  test('40.1 deve lançar erro ao inverter o número zero', () => {
+    // Mata o mutante de condição e cobre o StringLiteral
+    expect(() => inverso(0)).toThrow('Não é possível inverter o número zero.');
+  });
 
   // === Testes para o Bloco 5 (41-50) ===
   test('41. deve calcular a área de um círculo', () => { expect(areaCirculo(10)).toBeCloseTo(314.159); });
   test('42. deve calcular a área de um retângulo', () => { expect(areaRetangulo(5, 4)).toBe(20); });
   test('43. deve calcular o perímetro de um retângulo', () => { expect(perimetroRetangulo(5, 4)).toBe(18); });
   test('44. deve verificar se um número é maior que outro', () => { expect(isMaiorQue(10, 5)).toBe(true); });
+  test('44.1 deve verificar que números iguais não são maiores', () => {
+    // Mata o mutante de igualdade (a > b -> a >= b)
+    expect(isMaiorQue(5, 5)).toBe(false);
+  });
+  test('44.2 deve verificar que um número menor não é maior', () => {
+    // Mata o mutante de condição que sempre retorna true
+    expect(isMaiorQue(5, 10)).toBe(false);
+  });
   test('45. deve verificar se um número é menor que outro', () => { expect(isMenorQue(5, 10)).toBe(true); });
+  test('45.1 deve verificar que números iguais não são menores', () => {
+    // Mata o mutante de igualdade (a < b -> a <= b)
+    expect(isMenorQue(5, 5)).toBe(false);
+  });
+  test('45.2 deve verificar que um número maior não é menor', () => {
+    // Mata o mutante de condição que sempre retorna true
+    expect(isMenorQue(10, 5)).toBe(false);
+  });
   test('46. deve verificar se dois números são iguais', () => { expect(isEqual(7, 7)).toBe(true); });
+  test('46.1 deve verificar se dois números diferentes não são iguais', () => {
+    // Mata o mutante de condição que sempre retorna true
+    expect(isEqual(7, 8)).toBe(false);
+  });
   test('47. deve calcular a mediana de um array ímpar e ordenado', () => { expect(medianaArray([1, 2, 3, 4, 5])).toBe(3); });
+  test('47.1 deve calcular a mediana de um array ímpar e desordenado', () => {
+    // Mata mutante de 'sort' que remove a ordenação (ex: [...numeros])
+    expect(medianaArray([5, 3, 1, 4, 2])).toBe(3);
+  });
+  test('47.2 deve calcular a mediana de um array par', () => {
+    // Mata mutantes no bloco 'if' para arrays pares
+    expect(medianaArray([1, 2, 3, 4])).toBe(2.5);
+  });
+  test('47.3 deve lançar erro ao calcular mediana de array vazio', () => {
+    // Mata os mutantes de condição e cobre o StringLiteral
+    expect(() => medianaArray([])).toThrow('Array vazio не possui mediana.');
+  });
   test('48. deve calcular o dobro de um número', () => { expect(dobro(10)).toBe(20); });
   test('49. deve calcular o triplo de um número', () => { expect(triplo(10)).toBe(30); });
   test('50. deve calcular a metade de um número', () => { expect(metade(20)).toBe(10); });
